@@ -1,6 +1,6 @@
 
 import sys
-from Message import Message
+from lib.Message import Message
 from itertools import product
 
 def get_input_string(path_to_file):
@@ -43,18 +43,12 @@ if __name__ == '__main__':
 
         for password in product(*blocks_chars):
             assert len(password) == keysize
-            password = password
+            password = ''.join(password)
             message = Message(ciphered_message).cipher(password)
             score = message.score()
             results.append((score, message, password))
 
     results.sort(reverse=True)
-
-    print results[:5]
-
-    # print 'password:', best_password
-    # print 'deciphered message:', best_deciphered_text
-    # print 'best score', best_score
-
-    # for comb in product(chars, repeat=keysize):
-    #     print ''.join(comb)
+    
+    print 'Message:\n', message
+    print 'Password:', password

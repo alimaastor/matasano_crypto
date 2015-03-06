@@ -96,7 +96,7 @@ class Message(object):
         return self.cipher(key)
 
     def score(self):
-        msg = filter(lambda x: x.isalpha(), self._message)
+        msg = self._message
         if not msg:
             return -float('inf')
         char_count = Counter(msg.upper()).most_common()
@@ -105,6 +105,8 @@ class Message(object):
             return -float('inf')
         score = 0
         most_common = char_freq[:5]
+        if ' ' == most_common[0]:
+            score += 5
         for letter in most_common:
             if letter in 'EATOIN':
                 score += 1
