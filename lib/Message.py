@@ -80,7 +80,7 @@ class Message(object):
     def normalized_distance_to(self, other_msg):
         return self.distance_to(other_msg) * 1.0 / len(self)
 
-    def cipher(self, key):
+    def xor(self, key):
         # assert isinstance(key, str)
         quotient, remainder = divmod(len(self), len(key))
         extended_key = quotient * key + key[:remainder]
@@ -91,9 +91,6 @@ class Message(object):
             result += ciphered_char
         self._message = result
         return self
-
-    def decipher(self, key):
-        return self.cipher(key)
 
     def score(self):
         msg = self._message
@@ -133,6 +130,13 @@ class Message(object):
         assert n_bytes >= 0
         self._message += n_bytes * chr(n_bytes)
         return self
+
+    def slices(self, slice_size=2):
+        for i in xrange(0, len(self._message), slice_size):
+            buff = ''
+            for a in xrange(slice_size):
+                buff += self._message[i+a]
+            yield buff
 
     def __eq__(self, other):
         if isinstance(other, str):
@@ -220,17 +224,12 @@ if __name__ == '__main__':
         def test_cipher(self):
             msg = 'Burning \'em, if you ain\'t quick and nimble\nI go crazy when I hear a cymbal'
             message = Message(msg)
-            message.cipher('ICE')
+            message.xor('ICE')
             self.assertEqual(message.to_hex(), '0b3637272a2b2e63622c2e69692a23693a2a3c6324202d623d63343c2a26226'
                                                '324272765272a282b2f20430a652e2c652a3124333a653e2b2027630c692b20'
                                                '283165286326302e27282f')
-            message.decipher('ICE')
-            self.assertEqual(message.to_str(), msg)
 
         def test_padding(self):
             self.assertEqual(Message("YELLOW SUBMARINE").padding(20), "YELLOW SUBMARINE\x04\x04\x04\x04")
-
-        # def test_score(self):
-        #     self.assertEqual(Message('1234abcd__--;;').score(), 8)
 
     unittest.main()

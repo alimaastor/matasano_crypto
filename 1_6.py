@@ -33,7 +33,7 @@ if __name__ == '__main__':
             assert len(block) == n_blocks
             block_chars = []
             for char in xrange(256):
-                ciphered_block = Message(block).cipher(chr(char))
+                ciphered_block = Message(block).xor(chr(char))
                 score = ciphered_block.score()
                 block_chars.append((score, chr(char), ciphered_block))
                 # print (score, chr(char), ciphered_block)
@@ -44,7 +44,7 @@ if __name__ == '__main__':
         for password in product(*blocks_chars):
             assert len(password) == keysize
             password = ''.join(password)
-            message = Message(ciphered_message).cipher(password)
+            message = Message(ciphered_message).xor(password)
             score = message.score()
             results.append((score, message, password))
 
