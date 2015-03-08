@@ -36,8 +36,6 @@ if __name__ == '__main__':
                 ciphered_block = Message(block).xor(chr(char))
                 score = ciphered_block.score()
                 block_chars.append((score, chr(char), ciphered_block))
-                # print (score, chr(char), ciphered_block)
-                # raw_input()
             block_chars.sort(reverse=True)
             blocks_chars.append([ch for sc, ch, msg in block_chars[:1]])
 

@@ -7,7 +7,7 @@ if __name__ == '__main__':
 
 	for i in xrange(256):
 		key = chr(i)
-		message = Message().set_hex(sys.argv[1]).decipher(key)
+		message = Message().set_hex(sys.argv[1]).xor(key)
 		score = message.score()
 		result.append((score, message, key))
 
