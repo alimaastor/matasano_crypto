@@ -128,6 +128,12 @@ class Message(object):
         sizes.sort()
         return [s for _, s in sizes[:n_sizes]]
 
+    def padding(self, block_length=16):
+        n_bytes = block_length - len(self._message)
+        assert n_bytes >= 0
+        self._message += n_bytes * chr(n_bytes)
+        return self
+
     def __eq__(self, other):
         if isinstance(other, str):
             return self._message == other
@@ -220,6 +226,9 @@ if __name__ == '__main__':
                                                '283165286326302e27282f')
             message.decipher('ICE')
             self.assertEqual(message.to_str(), msg)
+
+        def test_padding(self):
+            self.assertEqual(Message("YELLOW SUBMARINE").padding(20), "YELLOW SUBMARINE\x04\x04\x04\x04")
 
         # def test_score(self):
         #     self.assertEqual(Message('1234abcd__--;;').score(), 8)
