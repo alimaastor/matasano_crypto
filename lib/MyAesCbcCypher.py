@@ -7,7 +7,7 @@ from Message import Message
 
 class MyAesCbcCypher(object):
 
-    def __init__(self, password, iv):
+    def __init__(self, password, iv=None):
         if iv is None:
             iv = self.get_random_iv()
         self._cypher = AES.new(password, AES.MODE_ECB)
@@ -20,6 +20,7 @@ class MyAesCbcCypher(object):
         return r
 
     def decrypt(self, msg):
+        assert len(msg)%16 == 0
         prev_ciphertext = self.iv
         text = ''
         for s in msg.slices(16):

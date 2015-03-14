@@ -126,12 +126,14 @@ class Message(object):
         return [s for _, s in sizes[:n_sizes]]
 
     def padding(self, block_length=16):
-        n_bytes = block_length - len(self._message)
+        n_bytes = 16 - (len(self._message) % block_length)
         assert n_bytes >= 0
         self._message += n_bytes * chr(n_bytes)
+        assert len(self) % block_length == 0
         return self
 
     def slices(self, slice_size=2):
+        assert len(self._message) % slice_size == 0
         for i in xrange(0, len(self._message), slice_size):
             buff = ''
             for a in xrange(slice_size):
