@@ -2,14 +2,16 @@
 import random
 from Crypto.Cipher import AES
 
-from lib.Message import Message
+from Message import Message
 
 
-def MyAesCbcCypher(object):
+class MyAesCbcCypher(object):
 
-    def __init__(self, password, iv=self.get_random_iv()):
+    def __init__(self, password, iv):
+        if iv is None:
+            iv = self.get_random_iv()
         self._cypher = AES.new(password, AES.MODE_ECB)
-	    self.iv = iv
+        self.iv = iv
 
     def get_random_iv(self):
         r = ''
@@ -19,14 +21,32 @@ def MyAesCbcCypher(object):
 
     def decrypt(self, msg):
         prev_ciphertext = self.iv
-    	text = ''
-    	for s in msg.slices(16):
-	    	chunk = Message(cipher.decrypt(s)).xor(prev_ciphertext).to_str()
-		    prev_ciphertext = s
-    		text += chunk
-	    return texta
+        text = ''
+        for s in msg.slices(16):
+            chunk = Message(self._cypher.decrypt(s)).xor(prev_ciphertext).to_str()
+            prev_ciphertext = s
+            text += chunk
+        return text
 
     def encrypt(self, msg):
         prev_ciphertext = self.iv
         text = ''
         for s in msg.slices(16):
+            chunk = self._cypher.encrypt(Message(s).xor(prev_ciphertext).to_str())
+            prev_ciphertext = chunk
+            text += chunk
+        return text
+
+if __name__ == '__main__':
+
+    import unittest
+
+    class TestMyAesCbcCypher(unittest.TestCase):
+
+        def test_cipher_decipher(self):
+            c = MyAesCbcCypher('passwordpassword', 'YELLOW SUBMARINE')
+            text = 'message message message message '
+            encrypted = c.encrypt(Message(text))
+            self.assertEqual(c.decrypt(Message(encrypted)), text)
+
+    unittest.main()
