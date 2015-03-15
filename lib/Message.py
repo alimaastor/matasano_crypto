@@ -126,7 +126,9 @@ class Message(object):
         return [s for _, s in sizes[:n_sizes]]
 
     def padding(self, block_length=16):
-        n_bytes = 16 - (len(self._message) % block_length)
+        n_bytes = block_length - (len(self._message) % block_length)
+        if n_bytes == block_length:
+            return self
         assert n_bytes >= 0
         self._message += n_bytes * chr(n_bytes)
         assert len(self) % block_length == 0
@@ -233,5 +235,7 @@ if __name__ == '__main__':
 
         def test_padding(self):
             self.assertEqual(Message("YELLOW SUBMARINE").padding(20), "YELLOW SUBMARINE\x04\x04\x04\x04")
+            self.assertEqual(Message("aaaaaaaaaaaaaaaa").padding(16), "aaaaaaaaaaaaaaaa")
+
 
     unittest.main()

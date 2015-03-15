@@ -1,0 +1,79 @@
+
+import sys
+import random
+import json
+from Crypto.Cipher import AES
+
+from lib.Message import Message
+
+def static_var(varname, value):
+    def decorate(func):
+        setattr(func, varname, value)
+        return func
+    return decorate
+
+@static_var('passwd', reduce(lambda x,_: x + chr(random.randint(0,255)),xrange(16),''))
+def get_passwd():
+    return get_passwd.passwd
+
+
+class Cypher(object):
+    def __init__(self):
+        self._cypher = AES.new(get_passwd(), AES.MODE_ECB)
+
+    def encrypt(self, txt):
+        msg = Message(txt).padding(16)
+        return self._cypher.encrypt(msg.to_str())
+
+
+def create_lookup_table(cypher, substring, block_size):
+    lookup_table = {}
+    for c in xrange(256):
+        element = substring + chr(c)
+        assert len(element) == block_size
+        lookup_table[cypher.encrypt(element)] = element
+    return lookup_table
+
+if __name__ == '__main__':
+    
+    message = Message().set_b64(''.join((
+        'Um9sbGluJyBpbiBteSA1LjAKV2l0aCBteSByYWctdG9wIGRvd24gc28gbXkg',
+        'aGFpciBjYW4gYmxvdwpUaGUgZ2lybGllcyBvbiBzdGFuZGJ5IHdhdmluZyBq',
+        'dXN0IHRvIHNheSBoaQpEaWQgeW91IHN0b3A/IE5vLCBJIGp1c3QgZHJvdmUg',
+        'YnkK')))
+
+    # message = Message('123456789')
+
+    cypher = Cypher()
+
+    # Detect block size of the cypher.
+    for i in xrange(1,129):
+        m = Message(cypher.encrypt(2 * i * 'a'))
+        if m[:i] == m[i:2*i]:
+            block_size = i
+            break
+
+    print 'block size is', block_size, 'using ECB mode.\n'
+
+    decrypted_message = ''
+    for char_index in xrange(len(message)):
+        
+        block_no, subblock_index = divmod(char_index, block_size)
+        
+        prefix = (block_size - subblock_index - 1) * 'a'
+
+        if block_no:
+            lookup_string_value = decrypted_message[1 - block_size:]
+        else:
+            lookup_string_value = prefix + decrypted_message[:subblock_index]
+
+        lookup_table = create_lookup_table(cypher, lookup_string_value, block_size)
+        
+        encrypted = cypher.encrypt(prefix + message.to_str())
+
+        next_char = lookup_table[encrypted[block_no * block_size:(block_no + 1) * block_size]][-1]
+
+        decrypted_message += next_char
+
+    assert decrypted_message == message.to_str()
+    print 'Text is:\n', decrypted_message
