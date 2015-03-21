@@ -1,5 +1,6 @@
 
 import random
+from collections import OrderedDict
 
 def parse_structured_cookie(string):
     result = {}
@@ -9,8 +10,8 @@ def parse_structured_cookie(string):
     return result
 
 def profile_for(string):
-    return '&'.join(map(lambda x: '{}={}'.format(*x), {
-        'email': string.translate(None, '&='),
-        'uid': random.randint(0,500),
-        'role': 'user',
-    }.iteritems()))
+    r = OrderedDict()
+    r['email'] = string.translate(None, '&=')
+    r['uid']   = 15
+    r['role']  = 'user'
+    return '&'.join(map(lambda x: '{}={}'.format(*x), r.iteritems()))
