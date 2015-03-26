@@ -6,6 +6,7 @@ from Crypto.Cipher import AES
 
 from lib.Message import Message
 from lib.Cypher import Cypher
+from lib.utils import get_random_length_text
 
 def create_lookup_table(cypher, substring, block_size):
     lookup_table = {}
@@ -35,7 +36,9 @@ if __name__ == '__main__':
     print 'block size is', block_size, 'using ECB mode.\n'
 
     decrypted_message = ''
-    for char_index in xrange(len(message)):
+    char_index = 0
+    while True:
+    # for char_index in xrange(len(message)):
 
         block_no, subblock_index = divmod(char_index, block_size)
 
@@ -48,11 +51,17 @@ if __name__ == '__main__':
 
         lookup_table = create_lookup_table(cypher, lookup_string_value, block_size)
 
-        encrypted = cypher.encrypt(prefix + message.to_str())
+        encrypted = cypher.encrypt(get_random_length_text() + prefix + message.to_str())
 
-        next_char = lookup_table[encrypted[block_no * block_size:(block_no + 1) * block_size]][-1]
-
-        decrypted_message += next_char
+        try:
+            next_char = lookup_table[encrypted[16 + block_no * block_size : 16 + (block_no + 1) * block_size]][-1]
+        except KeyError:
+            continue
+        else:
+            decrypted_message += next_char
+            char_index += 1
+            if len(decrypted_message) == len(message):
+                break
 
     assert decrypted_message == message.to_str()
     print 'Text is:\n', decrypted_message
