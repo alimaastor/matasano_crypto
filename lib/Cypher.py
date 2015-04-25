@@ -10,10 +10,12 @@ def get_passwd():
     return get_passwd.passwd
 
 def has_correct_padding(txt):
-    to_check = txt[-16:]
+    to_check = txt
     last_byte_number = ord(to_check[-1])
+    if last_byte_number == 1:
+        return True
     is_ok = True
-    if to_check[-last_byte_number:-2] == to_check[-last_byte_number+1:-1]:
+    if to_check[-last_byte_number:-1] == to_check[-last_byte_number+1:]:
         return True
     raise ValueError()
 
@@ -44,6 +46,9 @@ if __name__ == '__main__':
 
         def test_has_correct_padding(self):
             self.assertTrue(has_correct_padding('ICE ICE BABY\x04\x04\x04\x04'))
+            self.assertTrue(has_correct_padding('ICE ICE BABY\x04\x04\x04\x01'))
+            self.assertTrue(has_correct_padding('aaaaaaaaaaaaaaa\x01'))
+            self.assertTrue(has_correct_padding('ICE ICE BABYaa\x02\x02'))
             self.assertRaises(ValueError, has_correct_padding, 'ICE ICE BABY\x05\x05\x05\x05')
             self.assertRaises(ValueError, has_correct_padding, "ICE ICE BABY\x01\x02\x03\x04")
 

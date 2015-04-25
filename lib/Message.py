@@ -8,7 +8,7 @@ class Message(object):
     def __init__(self, msg=''):
         if isinstance(msg, Message):
             self._message = msg.to_str()
-        else:    
+        else:
             assert isinstance(msg, str)
             self._message = msg
 
@@ -142,6 +142,12 @@ class Message(object):
                 buff += self._message[i+a]
             yield buff
 
+    def all_slices(self, slice_size=2):
+        r = []
+        for e in self.slices(slice_size):
+            r.append(e)
+        return r
+
     def __eq__(self, other):
         if isinstance(other, str):
             return self._message == other
@@ -219,7 +225,7 @@ if __name__ == '__main__':
 
         def test_normalized_distance_to(self):
             self.assertEqual(Message('this is a test').normalized_distance_to('wokka wokka!!!'), 37./14)
-        
+
         def test_equal(self):
             self.assertEqual(Message('this is a test'), 'this is a test')
             self.assertEqual(Message('this is a test'), Message('this is a test'))
@@ -235,7 +241,20 @@ if __name__ == '__main__':
 
         def test_padding(self):
             self.assertEqual(Message("YELLOW SUBMARINE").padding(20), "YELLOW SUBMARINE\x04\x04\x04\x04")
-            self.assertEqual(Message("aaaaaaaaaaaaaaaa").padding(16), "aaaaaaaaaaaaaaaa")
-
+            self.assertEqual(Message("aaaaaaaaaaaaaaa").padding(16), "aaaaaaaaaaaaaaa\x01")
+            self.assertEqual(Message("aaaaaaaaaaaaaa").padding(16), "aaaaaaaaaaaaaa\x02\x02")
+            self.assertEqual(Message("aaaaaaaaaaaaa").padding(16), "aaaaaaaaaaaaa\x03\x03\x03")
+            self.assertEqual(Message("aaaaaaaaaaaa").padding(16), "aaaaaaaaaaaa\x04\x04\x04\x04")
+            self.assertEqual(Message("aaaaaaaaaaa").padding(16), "aaaaaaaaaaa\x05\x05\x05\x05\x05")
+            self.assertEqual(Message("aaaaaaaaaa").padding(16), "aaaaaaaaaa\x06\x06\x06\x06\x06\x06")
+            self.assertEqual(Message("aaaaaaaaa").padding(16), "aaaaaaaaa\x07\x07\x07\x07\x07\x07\x07")
+            self.assertEqual(Message("aaaaaaaa").padding(16), "aaaaaaaa\x08\x08\x08\x08\x08\x08\x08\x08")
+            self.assertEqual(Message("aaaaaaa").padding(16), "aaaaaaa\x09\x09\x09\x09\x09\x09\x09\x09\x09")
+            self.assertEqual(Message("aaaaaa").padding(16), "aaaaaa\x0A\x0A\x0A\x0A\x0A\x0A\x0A\x0A\x0A\x0A")
+            self.assertEqual(Message("aaaaa").padding(16), "aaaaa\x0B\x0B\x0B\x0B\x0B\x0B\x0B\x0B\x0B\x0B\x0B")
+            self.assertEqual(Message("aaaa").padding(16), "aaaa\x0C\x0C\x0C\x0C\x0C\x0C\x0C\x0C\x0C\x0C\x0C\x0C")
+            self.assertEqual(Message("aaa").padding(16), "aaa\x0D\x0D\x0D\x0D\x0D\x0D\x0D\x0D\x0D\x0D\x0D\x0D\x0D")
+            self.assertEqual(Message("aa").padding(16), "aa\x0E\x0E\x0E\x0E\x0E\x0E\x0E\x0E\x0E\x0E\x0E\x0E\x0E\x0E")
+            self.assertEqual(Message("a").padding(16), "a\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F")
 
     unittest.main()
