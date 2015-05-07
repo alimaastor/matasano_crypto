@@ -42,7 +42,7 @@ class Message(object):
         assert isinstance(hex_number, str)
         if len(hex_number)%2 != 0:
             hex_number = '0' + hex_number
-        self._message = ''.join([chr(int(char1+char2, 16)) 
+        self._message = ''.join([chr(int(char1+char2, 16))
             for char1, char2 in zip(hex_number[0::2], hex_number[1::2])])
         return self
 

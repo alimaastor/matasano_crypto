@@ -2,30 +2,11 @@
 import os
 import argparse
 
-def decipher(hex_number, hex_char):
-    assert hex_number
-    assert hex_char
-    if len(hex_number)%2 == 1:
-        hex_number = '0' + hex_number
-    if len(hex_char)%2 == 1:
-        hex_char = '0' + hex_char
-    assert len(hex_number)%len(hex_char) == 0
-    hex_char = len(hex_number)/len(hex_char) * hex_char
-    r = format(int(hex_number, 16) ^ int(hex_char, 16), "01x")
-    result = ''
-    for char1, char2 in zip(r[0::2], r[1::2]):
-        try:
-            if int(char1+char2, 16) > 128:
-                return ""
-            char = chr(int(char1+char2, 16))
-            if len(char) > 1:
-                return ""
-            result = result + char
-        except UnicodeEncodeError:
-            return ""
-    return result
+from lib.Message import Message
 
 def score_string(string):
+    '''This score function is slightly different to the one used in Message.py
+    because we don't use letter frequency analysis here.'''
     score = 0
     for char in string:
         if char == " ":
@@ -35,27 +16,18 @@ def score_string(string):
     return score
 
 def main():
-
-    best_result = (-1, "not found", None)
-
+    best_score = -1
     with open(os.path.join("data", "1_4_data.txt"), 'r') as f:
-        for line in f:
-            result = []
-
+        for line_number, line in enumerate(f):
             for i in xrange(256):
-                key = format(i, "01x")
-                message = decipher(line, key)
-                if not message:
-                    continue
+                key = chr(i)
+                message = Message().set_hex(line.replace('\n','')).xor(key).to_str()
                 score = score_string(message)
-                result.append((score, message, key))
+                if score > best_score:
+                    best_score = score
+                    result = (message.replace('\n',''), key, line_number, score)
 
-            result.sort(reverse=True)
-
-            if result and result[0] > best_result:
-                best_result = result[0]
-
-    print best_result
+    print "Line is [{}] (key = [{}]; line number = [{}], score = [{}])".format(*result)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
