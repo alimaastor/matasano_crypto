@@ -1,6 +1,6 @@
 
+import argparse
 import random
-
 from Crypto.Cipher import AES
 from Crypto import Random
 
@@ -20,13 +20,11 @@ messages = [
     "MDAwMDA5aXRoIG15IHJhZy10b3AgZG93biBzbyBteSBoYWlyIGNhbiBibG93",
 ]
 
-if __name__ == '__main__':
-
+def main():
     iv = Random.new().read(AES.block_size)
     c = AES.new(get_passwd(), AES.MODE_CBC, iv)
 
     message = Message().set_b64(random.choice(messages))
-    # message = Message('1' * 16 + '2' * 16 + '3' * 16 + '4' * 16 + '5' * 14)
     encrypted_text = c.encrypt(message.padding().to_str())
 
     assert len(encrypted_text) % 16 == 0
@@ -79,4 +77,13 @@ if __name__ == '__main__':
         else:
             msg = plain_current_block + msg
 
-    print msg
+    print "Message is:\n"
+    print repr(msg)
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        description='The CBC padding oracle - Challenge 17 (Set 3) of Matasano Crypto Challenge.')
+
+    args = parser.parse_args()
+
+    main()
