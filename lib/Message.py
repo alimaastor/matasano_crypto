@@ -165,10 +165,10 @@ class Message(object):
         self._message[key] = value
 
     def __str__(self):
-        return self._message
+        return repr(self._message)
 
     def __repr__(self):
-        return self._message
+        return repr(self._message)
 
 
 if __name__ == '__main__':

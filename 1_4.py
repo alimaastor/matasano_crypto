@@ -31,7 +31,7 @@ def main():
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description='Single-byte XOR cipher - Challenge 3 (Set 1) of Matasano Crypto Challenge.')
+        description='Detect single-character XOR - Challenge 4 (Set 1) of Matasano Crypto Challenge.')
 
     args = parser.parse_args()
 
