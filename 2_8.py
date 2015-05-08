@@ -3,8 +3,7 @@ from Crypto.Cipher import AES
 from Crypto import Random
 
 from lib.Message import Message
-from lib.Cypher import get_passwd
-from lib.utils import get_random_length_text
+from lib.utils import get_random_length_text, get_passwd
 
 def set_up_text(text):
 	return "comment1=cooking%20MCs;userdata=" + \

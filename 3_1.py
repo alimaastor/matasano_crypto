@@ -5,7 +5,7 @@ from Crypto.Cipher import AES
 from Crypto import Random
 
 from lib.Message import Message
-from lib.Cypher import get_passwd, has_correct_padding
+from lib.utils import get_passwd, has_correct_padding
 
 messages = [
     "MDAwMDAwTm93IHRoYXQgdGhlIHBhcnR5IGlzIGp1bXBpbmc=",

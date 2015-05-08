@@ -2,7 +2,7 @@
 import random
 from collections import OrderedDict
 
-from lib.Cypher import Cypher
+from lib.utils import Cypher
 from lib.Message import Message
 
 def parse_structured_cookie(string):

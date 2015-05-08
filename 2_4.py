@@ -6,7 +6,7 @@ import json
 from Crypto.Cipher import AES
 
 from lib.Message import Message
-from lib.Cypher import Cypher
+from lib.utils import Cypher
 
 def create_lookup_table(cypher, substring, block_size):
     lookup_table = {}

@@ -1,5 +1,5 @@
 
-from lib.Cypher import has_correct_padding
+from lib.utils import has_correct_padding
 
 if __name__ == '__main__':
     if not has_correct_padding('ICE ICE BABY\x04\x04\x04\x04'):
