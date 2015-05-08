@@ -1,7 +1,6 @@
 
-import sys
+import argparse
 import random
-import json
 from Crypto.Cipher import AES
 
 from lib.Message import Message
@@ -15,8 +14,7 @@ def create_lookup_table(cypher, substring, block_size):
         lookup_table[cypher.encrypt(element)] = element
     return lookup_table
 
-if __name__ == '__main__':
-
+def main():
     message = Message().set_b64(''.join((
         'Um9sbGluJyBpbiBteSA1LjAKV2l0aCBteSByYWctdG9wIGRvd24gc28gbXkg',
         'aGFpciBjYW4gYmxvdwpUaGUgZ2lybGllcyBvbiBzdGFuZGJ5IHdhdmluZyBq',
@@ -64,3 +62,11 @@ if __name__ == '__main__':
 
     assert decrypted_message == message.to_str()
     print 'Text is:\n', decrypted_message
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        description='Byte-at-a-time ECB decryption (Harder) - Challenge 14 (Set 2) of Matasano Crypto Challenge.')
+
+    args = parser.parse_args()
+
+    main()
