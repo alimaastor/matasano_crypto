@@ -56,7 +56,7 @@ def main():
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description='Implement PKCS#7 padding - Challenge 9 (Set 2) of Matasano Crypto Challenge.')
+        description='An ECB/CBC detection oracle - Challenge 11 (Set 2) of Matasano Crypto Challenge.')
 
     args = parser.parse_args()
 
