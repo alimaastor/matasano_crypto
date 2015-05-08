@@ -4,7 +4,7 @@ import argparse
 from lib.Message import Message
 
 def main(message, key):
-	print repr(Message(message).xor(key).to_str())
+    print repr(Message(message).xor(key).to_str())
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
