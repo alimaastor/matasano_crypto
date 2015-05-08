@@ -135,12 +135,15 @@ class Message(object):
         return self
 
     def slices(self, slice_size=2):
-        assert len(self._message) % slice_size == 0
-        for i in xrange(0, len(self._message), slice_size):
+        n_whole_chunks = len(self._message) / slice_size
+        assert n_whole_chunks <= len(self._message)
+        for i in xrange(0, n_whole_chunks * slice_size, slice_size):
             buff = ''
             for a in xrange(slice_size):
                 buff += self._message[i+a]
             yield buff
+        if n_whole_chunks < len(self._message):
+            yield self._message[n_whole_chunks * slice_size:]
 
     def all_slices(self, slice_size=2):
         r = []
