@@ -35,10 +35,8 @@ def main():
     decrypted_message = ''
     char_index = 0
     while True:
-    # for char_index in xrange(len(message)):
 
         block_no, subblock_index = divmod(char_index, block_size)
-
         prefix = (block_size - subblock_index - 1) * 'a'
 
         if block_no:
@@ -47,7 +45,6 @@ def main():
             lookup_string_value = prefix + decrypted_message[:subblock_index]
 
         lookup_table = create_lookup_table(cypher, lookup_string_value, block_size)
-
         encrypted = cypher.encrypt(get_random_length_text() + prefix + message.to_str())
 
         try:
