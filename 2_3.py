@@ -1,4 +1,5 @@
 
+import argparse
 import sys
 import random
 from Crypto.Cipher import AES
@@ -6,37 +7,26 @@ from collections import Counter
 
 from lib.Message import Message
 from lib.MyAesCbcCypher import MyAesCbcCypher
+from lib.utils import get_random_text
 
 AES_CBC = 'AES_CBC'
 AES_ECB = 'AES_ECB'
 
-def random_aes_key():
-    r = ''
-    for _ in xrange(16):
-        r += chr(random.randint(0, 255))
-    return r
-
-def random_bytes():
-    r = ''
-    for _ in xrange(random.randint(5, 10)):
-        r += chr(random.randint(0, 255))
-    return r
-
 def encryption_oracle(message):
-    msg = random_bytes() + message + random_bytes()
-    msg = Message(msg).padding(16)
+    msg = get_random_text(random.randint(5, 10)) + message + get_random_text(random.randint(5, 10))
+    msg = Message(msg).padding()
 
-    key = random_aes_key()
-    
+    key = get_random_text()
+
     result = None
-    
+
     if random.random() > 0.5:
         c = MyAesCbcCypher(key)
         result = (c.encrypt(msg), AES_CBC)
     else:
         c = AES.new(key, AES.MODE_ECB)
         result = (c.encrypt(msg.to_str()), AES_ECB)
-    
+
     return result
 
 def detection_oracle(message):
@@ -52,14 +42,22 @@ def detection_oracle(message):
         return AES_ECB
     return AES_CBC
 
-if __name__ == '__main__':
+def main():
     message = 640 * 'a'
     try:
         for _ in xrange(500):
             encrypted_message, encryption_type = encryption_oracle(message)
             encryption_guessed = detection_oracle(encrypted_message)
             assert encryption_type == encryption_guessed
-    except AssertException:
+    except AssertionError:
         print "Detection Failed"
     else:
         print "All encryptions detected correctly"
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        description='Implement PKCS#7 padding - Challenge 9 (Set 2) of Matasano Crypto Challenge.')
+
+    args = parser.parse_args()
+
+    main()
