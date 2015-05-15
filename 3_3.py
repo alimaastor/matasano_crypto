@@ -1,5 +1,10 @@
 
 import argparse
+from Crypto.Cipher import AES
+from Crypto.Util import Counter
+
+from lib.utils import get_passwd, get_random_text
+from lib.Message import Message
 
 messages = [
     "SSBoYXZlIG1ldCB0aGVtIGF0IGNsb3NlIG9mIGRheQ==",
@@ -44,8 +49,24 @@ messages = [
     "QSB0ZXJyaWJsZSBiZWF1dHkgaXMgYm9ybi4=",
 ]
 
+# messages = [
+#     'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+#     'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+# ]
+
+IV = get_random_text(8)
+
+def get_cypher():
+    ctr_e = Counter.new(64, prefix=IV)
+    return AES.new(get_passwd(), AES.MODE_CTR, counter=ctr_e)
+
+def encrypt_messages(plain_messages):
+    return map(lambda x: get_cypher().encrypt(x), plain_messages)
+
 def main():
-    pass
+    encrypted_messages = encrypt_messages(map(lambda x: Message().set_b64(x).to_str(), messages))
+    for m in encrypted_messages:
+        print repr(m)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
