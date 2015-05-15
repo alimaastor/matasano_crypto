@@ -47,12 +47,10 @@ messages = [
     "SGUsIHRvbywgaGFzIGJlZW4gY2hhbmdlZCBpbiBoaXMgdHVybiw=",
     "VHJhbnNmb3JtZWQgdXR0ZXJseTo=",
     "QSB0ZXJyaWJsZSBiZWF1dHkgaXMgYm9ybi4=",
+    'YWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFh',
+    # 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+    # 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
 ]
-
-# messages = [
-#     'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-#     'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-# ]
 
 IV = get_random_text(8)
 
@@ -65,6 +63,11 @@ def encrypt_messages(plain_messages):
 
 def main():
     encrypted_messages = encrypt_messages(map(lambda x: Message().set_b64(x).to_str(), messages))
+    # encrypted_messages = encrypt_messages(map(lambda x: x, messages))
+    encrypted_messages = [(i, len(m), m) for i, m in enumerate(encrypted_messages)]
+    last_msg = encrypted_messages[-1][2]
+    first_slice = Message(last_msg).slices(4).next()
+
     for m in encrypted_messages:
         print repr(m)
 
