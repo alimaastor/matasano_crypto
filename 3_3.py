@@ -47,9 +47,6 @@ messages = [
     "SGUsIHRvbywgaGFzIGJlZW4gY2hhbmdlZCBpbiBoaXMgdHVybiw=",
     "VHJhbnNmb3JtZWQgdXR0ZXJseTo=",
     "QSB0ZXJyaWJsZSBiZWF1dHkgaXMgYm9ybi4=",
-    'YWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFh',
-    # 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-    # 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
 ]
 
 IV = get_random_text(8)
@@ -61,15 +58,29 @@ def get_cypher():
 def encrypt_messages(plain_messages):
     return map(lambda x: get_cypher().encrypt(x), plain_messages)
 
+def get_xor_of(text1, text2):
+    return Message(text1).xor(text2).to_str()
+
 def main():
     encrypted_messages = encrypt_messages(map(lambda x: Message().set_b64(x).to_str(), messages))
-    # encrypted_messages = encrypt_messages(map(lambda x: x, messages))
     encrypted_messages = [(i, len(m), m) for i, m in enumerate(encrypted_messages)]
-    last_msg = encrypted_messages[-1][2]
-    first_slice = Message(last_msg).slices(4).next()
 
-    for m in encrypted_messages:
-        print repr(m)
+    keystream = ''
+
+    index = 37
+    ciphered_msg = encrypted_messages[index][2]
+    plaintext = "He, too, has been changed in his turn,"
+    keystream += get_xor_of(Message(ciphered_msg).slices(len(plaintext)).next(), plaintext)
+
+    assert len(keystream) == len(plaintext)
+
+    for other_index, l, other_msg in encrypted_messages:
+        print other_index, l, get_xor_of(Message(other_msg).slices(len(plaintext)).next(), keystream)
+
+    print 'total length:', max([(l,i) for i,l,_ in encrypted_messages]), 'current length:', len(plaintext)
+
+    if max([l for _, l, _ in encrypted_messages]) == len(plaintext):
+        print "\n\033[32mAll DONE\033[0m"
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
