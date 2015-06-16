@@ -22,7 +22,7 @@ def main():
     for _ in xrange(1000000):
         assert mt_clone.extract_number() == mt.extract_number()
     else:
-        print "Marsene Twister PRNG cloned correctly."
+        print "Mersene Twister PRNG cloned correctly."
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
