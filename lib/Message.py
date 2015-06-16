@@ -175,7 +175,7 @@ class Message(object):
             for a in xrange(slice_size):
                 buff += self._message[i+a]
             yield buff
-        if n_whole_chunks < len(self._message):
+        if n_whole_chunks < len(self._message) / slice_size:
             yield self._message[n_whole_chunks * slice_size:]
 
     def all_slices(self, slice_size=2):
@@ -227,6 +227,9 @@ if __name__ == '__main__':
 
         def test_to_int(self):
             self.assertEqual(self.message.to_int(), 52987853747253)
+            for i in xrange(100000):
+                m = Message().set_int(i).xor('aaaa')
+                self.assertEqual(m.xor('aaaa').to_int(), i)
 
         def test_to_b64(self):
             self.assertEqual(self.message.to_b64(), 'MDEyMzQ1')

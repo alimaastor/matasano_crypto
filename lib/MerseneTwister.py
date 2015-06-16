@@ -1,8 +1,28 @@
 
+from Message import Message
+
+class MerseneTwisterCypher(object):
+
+    def __init__(self, password):
+        self.mt = MerseneTwister(Message(password).to_int())
+
+    def encrypt(self, text):
+        m = ''
+        self.p = []
+        for s in Message(text).slices(MerseneTwister.N_CHARS_PER_STATE ):
+            buff = self.mt.extract_number()
+            self.p.append(buff)
+            m += Message(s).xor(
+                    Message().set_int(
+                        buff
+                    ).to_str()
+                ).to_str()
+        return m
 
 class MerseneTwister(object):
 
     STATE_LENGTH = 624
+    N_CHARS_PER_STATE = (32 / 8)
     _seed = None
 
     '''
