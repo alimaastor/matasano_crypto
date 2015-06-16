@@ -67,8 +67,8 @@ class MerseneTwister(object):
 
         y  = self.state[self.index]
         y ^=   (y >> 11)
-        y ^= ( (y <<  7) & (2636928640) )
-        y ^= ( (y << 15) & (4022730752) )
+        y ^= ( (y <<  7) & (0x9D2C5680) )
+        y ^= ( (y << 15) & (0xEFC60000) )
         y ^=   (y >> 18)
 
         self.index += 1
@@ -88,7 +88,7 @@ class MerseneTwister(object):
              }
          }
      }
-     '''
+    '''
     def generate_numbers(self):
         for i in xrange(MerseneTwister.STATE_LENGTH):
             y = (self.state[i] & 0x80000000) + ((self.state[(i + 1) % MerseneTwister.STATE_LENGTH]) & 0x7fffffff)
@@ -96,15 +96,34 @@ class MerseneTwister(object):
             if y % 2 == 0:
                 self.state[i] ^= 2567483615
 
+    def set_state_and_index(self, state, index):
+        assert len(state) == len(self.state)
+        self.state, self.index = state, index
 
 def get_state_from_number(number):
-    # y  = self.state[self.index]
-    # y ^=   (y >> 11)
-    # y ^= ( (y <<  7) & (2636928640) )
-    # y ^= ( (y << 15) & (4022730752) )
-    # y ^=   (y >> 18)
+    y  = number
 
-    return None
+    # y ^=   (y >> 18)
+    y ^=   (y >> 18)
+
+    # y ^= ( (y << 15) & (0xEFC60000) )
+    buff = y & (~0xEFC60000)
+    y = buff | ((y ^ ((buff << 15) & 0xEFC60000)) & 0xFFFE0000)
+
+    # y ^= ( (y <<  7) & (0x9D2C5680) )
+    buff = y & 0x7F;
+    buff |= ((((buff << 7) & 0x9D2C5680) ^ y) & (0x7F << 7))
+    buff |= ((((buff << 7) & 0x9D2C5680) ^ y) & (0x7F << 14))
+    buff |= ((((buff << 7) & 0x9D2C5680) ^ y) & (0x7F << 21))
+    buff |= ((((buff << 7) & 0x9D2C5680) ^ y) & 0xF0000000)
+    y = buff
+
+    # y ^=   (y >> 11)
+    buff = (y & 0xFFE00000)
+    buff |= (((buff >> 11) ^ y) & 0x001FFC00)
+    y = buff | (((buff >> 11) ^ y) & 0x3FF)
+
+    return y
 
 if __name__ == '__main__':
 
