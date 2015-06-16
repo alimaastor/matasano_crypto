@@ -106,6 +106,11 @@ if __name__ == '__main__':
             self.assertEqual(len(mt.state), MerseneTwister.STATE_LENGTH)
             self.assertEqual(mt.state, [0] * MerseneTwister.STATE_LENGTH)
             self.assertEqual(mt._seed, None)
+            seed = 1234
+            mt.initialise_generator(seed)
+            self.assertNotEqual(mt.state, [0] * MerseneTwister.STATE_LENGTH)
+            self.assertEqual(len(mt.state), MerseneTwister.STATE_LENGTH)
+            self.assertEqual(mt._seed, seed)
 
         def test_set_up_with_seed(self):
             seed = 1234
