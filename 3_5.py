@@ -6,11 +6,12 @@ from lib.MerseneTwister import MerseneTwister
 def main():
     seed = 5489
     print 'Using seed', seed, '\n'
-    MerseneTwister.initialise_generator(seed)
+    mt = MerseneTwister()
+    mt.initialise_generator(seed)
 
     print 'Random numbers:'
-    for _ in range(100):
-        print MerseneTwister.extract_number()
+    for _ in range(1000):
+        print mt.extract_number()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(

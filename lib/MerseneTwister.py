@@ -1,12 +1,23 @@
 
 class MerseneTwister(object):
+
+    STATE_LENGTH = 624
+    _seed = None
+
     '''
      // Create a length 624 array to store the state of the generator
      int[0..623] MT
      int index = 0
     '''
-    state = [0] * 625
-    index = 0
+    def __init__(self, seed=None):
+        self.reset_internal_state()
+        if seed:
+            self._seed = seed
+            self.initialise_generator(seed)
+
+    def reset_internal_state(self):
+        self.state = [0] * MerseneTwister.STATE_LENGTH
+        self.index = 0
 
     '''
      // Initialize the generator from a seed
@@ -18,14 +29,16 @@ class MerseneTwister(object):
          }
      }
     '''
-    @staticmethod
-    def initialise_generator(seed):
-        MerseneTwister.state[0] = seed
-        for i in xrange(1,625):
-            MerseneTwister.state[i] = \
+    def initialise_generator(self, seed):
+        assert isinstance(seed, int)
+        self.reset_internal_state()
+        self._seed = seed
+        self.state[0] = seed
+        for i in xrange(1,MerseneTwister.STATE_LENGTH):
+            self.state[i] = \
                 (1812433253 * \
-                    (MerseneTwister.state[i - 1] ^ \
-                        (MerseneTwister.state[i - 1] >> 30)\
+                    (self.state[i - 1] ^ \
+                        (self.state[i - 1] >> 30)\
                     ) + i \
                 ) & 0xffffffff
 
@@ -47,19 +60,18 @@ class MerseneTwister(object):
          return y
      }
     '''
-    @staticmethod
-    def extract_number():
-        if MerseneTwister.index == 0:
-            MerseneTwister.generate_numbers()
+    def extract_number(self):
+        if self.index == 0:
+            self.generate_numbers()
 
-        y  = MerseneTwister.state[MerseneTwister.index]
+        y  = self.state[self.index]
         y ^=   (y >> 11)
         y ^= ( (y <<  7) & (2636928640) )
         y ^= ( (y << 15) & (4022730752) )
         y ^=   (y >> 18)
 
-        MerseneTwister.index += 1
-        MerseneTwister.index %= 624
+        self.index += 1
+        self.index %= MerseneTwister.STATE_LENGTH
 
         return y
 
@@ -76,10 +88,39 @@ class MerseneTwister(object):
          }
      }
      '''
-    @staticmethod
-    def generate_numbers():
-        for i in xrange(623):
-            y = (MerseneTwister.state[i] & 0x80000000) + ((MerseneTwister.state[i + 1] % 624) & 0x7fffffff)
-            MerseneTwister.state[i] = MerseneTwister.state[(i + 397) % 624] ^ (y >> 1)
+    def generate_numbers(self):
+        for i in xrange(MerseneTwister.STATE_LENGTH):
+            y = (self.state[i] & 0x80000000) + ((self.state[(i + 1) % MerseneTwister.STATE_LENGTH]) & 0x7fffffff)
+            self.state[i] = self.state[(i + 397) % MerseneTwister.STATE_LENGTH] ^ (y >> 1)
             if y % 2 == 0:
-                MerseneTwister.state[i] ^= 2567483615
+                self.state[i] ^= 2567483615
+
+if __name__ == '__main__':
+
+    import unittest
+
+    class TestMersenneTwister(unittest.TestCase):
+
+        def test_set_up(self):
+            mt = MerseneTwister()
+            self.assertEqual(len(mt.state), MerseneTwister.STATE_LENGTH)
+            self.assertEqual(mt.state, [0] * MerseneTwister.STATE_LENGTH)
+            self.assertEqual(mt._seed, None)
+
+        def test_set_up_with_seed(self):
+            seed = 1234
+            mt = MerseneTwister(seed)
+            self.assertEqual(len(mt.state), MerseneTwister.STATE_LENGTH)
+            self.assertNotEqual(mt.state, [0] * MerseneTwister.STATE_LENGTH)
+            self.assertEqual(mt._seed, seed)
+
+        def test_regenerates_state(self):
+            import copy
+            seed = 1234
+            mt = MerseneTwister(seed)
+            previous_state = copy.deepcopy(mt.state)
+            for _ in xrange(MerseneTwister.STATE_LENGTH): mt.generate_numbers()
+            next_state = mt.state
+            self.assertNotEqual(previous_state, next_state)
+
+    unittest.main()
