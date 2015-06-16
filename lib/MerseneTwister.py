@@ -1,4 +1,5 @@
 
+
 class MerseneTwister(object):
 
     STATE_LENGTH = 624
@@ -94,6 +95,16 @@ class MerseneTwister(object):
             self.state[i] = self.state[(i + 397) % MerseneTwister.STATE_LENGTH] ^ (y >> 1)
             if y % 2 == 0:
                 self.state[i] ^= 2567483615
+
+
+def get_state_from_number(number):
+    # y  = self.state[self.index]
+    # y ^=   (y >> 11)
+    # y ^= ( (y <<  7) & (2636928640) )
+    # y ^= ( (y << 15) & (4022730752) )
+    # y ^=   (y >> 18)
+
+    return None
 
 if __name__ == '__main__':
 
