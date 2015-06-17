@@ -1,4 +1,6 @@
 
+import pdb
+
 import types
 from collections import Counter
 from itertools import combinations
@@ -110,10 +112,20 @@ class Message(object):
     def normalized_distance_to(self, other_msg):
         return self.distance_to(other_msg) * 1.0 / len(self)
 
-    def xor(self, key):
-        # assert isinstance(key, str)
-        quotient, remainder = divmod(len(self._message), len(key))
-        extended_key = quotient * key + key[:remainder]
+    def xor(self, key, extend_key=True):
+        if extend_key:
+            quotient, remainder = divmod(len(self._message), len(key))
+            extended_key = quotient * key + key[:remainder]
+        else:
+            if len(self._message) > len(key):
+                extended_key = '\x00' * (len(self._message) - len(key)) + key
+            elif len(self._message) < len(key):
+                extended_key = key
+                self._message = '\x00' * (len(key) - len(self._message)) + self._message
+            elif len(self._message) == len(key):
+                extended_key = key
+            else:
+                assert False, "Not possible"
 
         result = ''
         for msg_char, key_char in zip(*[self._message, extended_key]):
@@ -121,6 +133,9 @@ class Message(object):
             result += ciphered_char
         self._message = result
         return self
+
+    def xor_whole(self, key):
+        return self.xor(key, extend_key=False)
 
     def score(self):
         msg = self._message

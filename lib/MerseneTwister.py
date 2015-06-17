@@ -12,7 +12,7 @@ class MerseneTwisterCypher(object):
         for s in Message(text).slices(MerseneTwister.N_CHARS_PER_STATE ):
             buff = self.mt.extract_number()
             self.p.append(buff)
-            m += Message(s).xor(
+            m += Message(s).xor_whole(
                     Message().set_int(
                         buff
                     ).to_str()

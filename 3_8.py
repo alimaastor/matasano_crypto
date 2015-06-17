@@ -14,13 +14,13 @@ def main():
 
 
     for i, (a, b) in enumerate(zip(Message(encrypted_message).slices(MerseneTwister.N_CHARS_PER_STATE), mtc.p)):
-        if Message(a).xor(Message().set_int(b).to_str()).to_str() != 'aaaa':
+        if Message(a).xor_whole(Message().set_int(b).to_str()).to_str() != 'aaaa':
             print "BBB for i {}; {} != {}".format(i, a, b)
 
     # outputs = map(
     #     lambda x: Message(x).to_int(),
     #     Message(encrypted_message)
-    #         .xor(plaintext)
+    #         .xor_whole(plaintext)
     #         .slices(MerseneTwister.N_CHARS_PER_STATE)
     # )
 
@@ -37,9 +37,9 @@ def main():
                         ), mtc.p) \
                     ):
         assert len(plaintext_msg) == len(encrypted_msg) == 4
-        assert Message(plaintext_msg).xor(encrypted_msg).to_int() == Message(encrypted_msg).xor(plaintext_msg).to_int()
-        assert Message(plaintext_msg).xor(encrypted_msg).xor(Message().set_int(c).to_str()).to_int() == 0
-        buff = Message(plaintext_msg).xor(encrypted_msg).to_int()
+        assert Message(plaintext_msg).xor_whole(encrypted_msg).to_int() == Message(encrypted_msg).xor_whole(plaintext_msg).to_int()
+        assert Message(plaintext_msg).xor_whole(encrypted_msg).xor_whole(Message().set_int(c).to_str()).to_int() == 0
+        buff = Message(plaintext_msg).xor_whole(encrypted_msg).to_int()
         outputs.append(buff)
         if buff != c:
             print "For i {}; encrypted_msg {}; plaintext {}; keystream {}; encrypted_msg xor plaintext {}; encrypted_msg xor keystream {}".format(
@@ -48,22 +48,22 @@ def main():
                 Message(plaintext_msg).to_int(),
                 c,
                 buff,
-                Message().set_int(c).xor(encrypted_msg).to_int()
+                Message().set_int(c).xor_whole(encrypted_msg).to_int()
             )
-        if Message(encrypted_msg).xor(Message().set_int(c).to_str()).to_str() != 'aaaa':
+        if Message(encrypted_msg).xor_whole(Message().set_int(c).to_str()).to_str() != 'aaaa':
             print "--- for i {}; {} != {}".format(i, repr(encrypted_msg), c)
-
-    raw_input()
 
     # Now we get the state.
     whole_state = map(
             lambda output: int(str(get_state_from_number(Message(output).to_int()))),
-            Message(encrypted_message).xor(plaintext).slices(MerseneTwister.N_CHARS_PER_STATE),
+            Message(encrypted_message).xor_whole(plaintext).slices(MerseneTwister.N_CHARS_PER_STATE),
         )
 
     for i, (a, b) in enumerate(zip(whole_state, mtc.mt.state)):
         if a != b:
             print "for i {}; {} != {}".format(i, a, b)
+
+    print 'done'
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
@@ -71,22 +71,4 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    a = 3780786657
-    b = 8403800
-
-    a ^ b
-    print 'a={}; b={}; a xor b = {}'.format(a, b, a ^ b)
-    print 'a={}; b={}; a xor b = {}'.format(a, b, Message().set_int(a).xor(Message().set_int(b).to_str()).to_int())
-    print ''
-    print "a    ", bin(a)[2:].zfill(32)
-    print "b    ", bin(b)[2:].zfill(32)
-    print "a ^ b", bin(Message().set_int(a).xor(Message().set_int(b).to_str()).to_int())[2:].zfill(32)
-    print ''
-    print "a    ", bin(a)[2:].zfill(32)
-    print "b    ", bin(b)[2:].zfill(32)
-    print "a ^ b", bin(a ^ b)[2:].zfill(32)
-
-
-
-
-    #main()
+    main()
