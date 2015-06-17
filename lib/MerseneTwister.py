@@ -3,8 +3,9 @@ from Message import Message
 
 class MerseneTwisterCypher(object):
 
-    def __init__(self, password):
-        self.mt = MerseneTwister(Message(password).to_int())
+    def __init__(self, password=None):
+        if password:
+            self.mt = MerseneTwister(Message(password).to_int())
 
     def encrypt(self, text):
         m = ''
