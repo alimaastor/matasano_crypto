@@ -1,7 +1,5 @@
 
 import argparse
-import time
-import random
 
 from lib.Message import Message
 from lib.MerseneTwister import MerseneTwister, MerseneTwisterCypher, get_state_from_number
