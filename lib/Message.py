@@ -112,7 +112,7 @@ class Message(object):
 
     def xor(self, key):
         # assert isinstance(key, str)
-        quotient, remainder = divmod(len(self), len(key))
+        quotient, remainder = divmod(len(self._message), len(key))
         extended_key = quotient * key + key[:remainder]
 
         result = ''
@@ -227,9 +227,9 @@ if __name__ == '__main__':
 
         def test_to_int(self):
             self.assertEqual(self.message.to_int(), 52987853747253)
-            for i in xrange(100000):
-                m = Message().set_int(i).xor('aaaa')
-                self.assertEqual(m.xor('aaaa').to_int(), i)
+            for i in xrange(10000):
+                m = Message().set_int(i).to_hex()
+                self.assertEqual(Message().set_hex(m).to_int(), i)
 
         def test_to_b64(self):
             self.assertEqual(self.message.to_b64(), 'MDEyMzQ1')
@@ -270,13 +270,17 @@ if __name__ == '__main__':
             self.assertEqual(Message('this is a test'), Message('this is a test'))
             self.assertNotEqual(Message('this is a test'), 123)
 
-        def test_cipher(self):
+        def test_xor(self):
             msg = 'Burning \'em, if you ain\'t quick and nimble\nI go crazy when I hear a cymbal'
             message = Message(msg)
             message.xor('ICE')
             self.assertEqual(message.to_hex(), '0b3637272a2b2e63622c2e69692a23693a2a3c6324202d623d63343c2a26226'
                                                '324272765272a282b2f20430a652e2c652a3124333a653e2b2027630c692b20'
                                                '283165286326302e27282f')
+
+            for i in xrange(10000):
+                m = Message().set_int(i).xor(Message().set_int(1234).to_str()).to_int()
+                self.assertEqual(m, i ^ 1234, "i = {}".format(i))
 
         def test_padding(self):
             self.assertEqual(Message("YELLOW SUBMARINE").padding(20), "YELLOW SUBMARINE\x04\x04\x04\x04")
