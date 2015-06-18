@@ -1,5 +1,6 @@
 
 import argparse
+import copy
 from Crypto.Cipher import AES
 from Crypto import Random
 
@@ -7,24 +8,24 @@ from lib.Message import Message
 from lib.utils import get_random_length_text, get_passwd
 
 def set_up_text(text):
-	return "comment1=cooking%20MCs;userdata=" + \
-		   text.replace('&', "\"&\"").replace('=', "\"=\"") + \
-		   ";comment2=%20like%20a%20pound%20of%20bacon"
+    return "comment1=cooking%20MCs;userdata=" + \
+           text.replace('&', "\"&\"").replace('=', "\"=\"") + \
+           ";comment2=%20like%20a%20pound%20of%20bacon"
 
 def main():
-	c = AES.new(get_passwd(), AES.MODE_CBC, Random.new().read(AES.block_size))
-	encrypted_text = c.encrypt(Message(set_up_text('a'*16)).padding().to_str())
-	target_text = Message(encrypted_text[16:32]).xor(';admin=true;a=aa').xor('a'*16).to_str()
-	print "Original plain text is [{}]".format(
-        repr(c.decrypt(encrypted_text))
+    c = lambda: AES.new(get_passwd(), AES.MODE_CBC, IV='\x00'*16)
+    encrypted_text = c().encrypt(Message(set_up_text('a'*16)).padding().to_str())
+    target_text = Message(encrypted_text[16:32]).xor(';admin=true;a=aa').xor('a'*16).to_str()
+    print "Original plain text is [{}]".format(
+        repr(c().decrypt(encrypted_text))
     )
-	print "Modified plain text is [{}]".format(
-        repr(c.decrypt(encrypted_text[:16] + target_text + encrypted_text[32:]))
+    print "Modified plain text is [{}]".format(
+        repr(c().decrypt(encrypted_text[:16] + target_text + encrypted_text[32:]))
     )
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description='CBC bitflipping attacks - Challenge 15 (Set 2) of Matasano Crypto Challenge.')
+        description='CBC bitflipping attacks - Challenge 16 (Set 2) of Matasano Crypto Challenge.')
 
     args = parser.parse_args()
 
