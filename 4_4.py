@@ -1,16 +1,18 @@
 
 import hashlib
 
-from lib.sha1 import sha1
+from lib.SHA1 import SHA1
 from lib.Message import Message
 
 def main(text):
-    m = Message().set_hex(sha1(text))
-    print repr(m.to_str())
+    sha1 = SHA1()
+    sha1.update(text)
+    m = sha1.hexdigest()
+    print m
 
     d = hashlib.sha1()
     d.update(text)
-    assert repr(d.digest()) == repr(m.to_str())
+    assert d.hexdigest() == m
 
 if __name__ == '__main__':
     import argparse

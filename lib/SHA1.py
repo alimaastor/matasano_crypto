@@ -1,93 +1,91 @@
 
-import struct
 import copy
 
-import struct
+class SHA1 (object):
+    '''Copied from https://github.com/sfstpala/SlowSHA/blob/master/slowsha.py and modified by me to add some features
+    and to get it working in python 2.7'''
 
-from Message import Message
 
-def leftrotate(i, n):
-    return ((i << n) & 0xffffffff) | (i >> (32 - n))
+    def __init__(self, h0=0x67452301, h1=0xefcdab89, h2=0x98badcfe, h3=0x10325476, h4=0xc3d2e1f0):
+        self.reset(h0, h1, h2, h3, h4)
 
-class SHA1(object):
-    '''Copied from https://gist.github.com/bonsaiviking/5639034'''
+    def update(self, message):
+        self._message += message
+
+    def reset(self, h0=0x67452301, h1=0xefcdab89, h2=0x98badcfe, h3=0x10325476, h4=0xc3d2e1f0):
+        self._h0, self._h1, self._h2, self._h3, self._h4, = h0, h1, h2, h3, h4
+        self._message = ''
+
+    def _process(self):
+        message = copy.copy(self._message)
+        length = bin(len(message) * 8)[2:].rjust(64, "0")
+        while len(message) > 64:
+            self._handle(''.join(bin(ord(i))[2:].rjust(8, "0")
+                for i in message[:64]))
+            message = message[64:]
+        message = ''.join(bin(ord(i))[2:].rjust(8, "0") for i in message) + "1"
+        message += "0" * ((448 - len(message) % 512) % 512) + length
+        for i in range(len(message) // 512):
+            self._handle(message[i * 512:i * 512 + 512])
+
+    def _handle(self, chunk):
+
+        lrot = lambda x, n: (x << n) | (x >> (32 - n))
+        w = []
+
+        for j in range(len(chunk) // 32):
+            w.append(int(chunk[j * 32:j * 32 + 32], 2))
+
+        for i in range(16, 80):
+            w.append(lrot(w[i - 3] ^ w[i - 8] ^ w[i - 14] ^ w[i - 16], 1)
+                & 0xffffffff)
+
+        a = self._h0
+        b = self._h1
+        c = self._h2
+        d = self._h3
+        e = self._h4
+
+        for i in range(80):
+
+            if i <= i <= 19:
+                f, k = d ^ (b & (c ^ d)), 0x5a827999
+            elif 20 <= i <= 39:
+                f, k = b ^ c ^ d, 0x6ed9eba1
+            elif 40 <= i <= 59:
+                f, k = (b & c) | (d & (b | c)), 0x8f1bbcdc
+            elif 60 <= i <= 79:
+                f, k = b ^ c ^ d, 0xca62c1d6
+
+            temp = lrot(a, 5) + f + e + k + w[i] & 0xffffffff
+            a, b, c, d, e = temp, a, lrot(b, 30), c, d
+
+        self._h0 = (self._h0 + a) & 0xffffffff
+        self._h1 = (self._h1 + b) & 0xffffffff
+        self._h2 = (self._h2 + c) & 0xffffffff
+        self._h3 = (self._h3 + d) & 0xffffffff
+        self._h4 = (self._h4 + e) & 0xffffffff
+
+    def _digest(self):
+        self._process()
+        return (self._h0, self._h1, self._h2, self._h3, self._h4)
+
+    def get_internal_state(self):
+        return (self._h0, self._h1, self._h2, self._h3, self._h4)
+
+    def hexdigest(self):
+        return ''.join(hex(i)[2:].rjust(8, "0")
+            for i in self._digest())
+
+    def digest(self):
+        hexdigest = self.hexdigest()
+        return bytes(int(hexdigest[i * 2:i * 2 + 2], 16)
+            for i in range(len(hexdigest) / 2))
 
     @staticmethod
-    def state_from_str_result(str_msg):
-        assert len(str_msg) == 20
-        r = []
-        for chunk in [str_msg[i:i+4] for i in xrange(0, 20, 4)]:
-            result = ''
-            for char in chunk:
-                hex_char = format(ord(char), "01x")
-                if len(hex_char) % 2 != 0:
-                    hex_char = '0' + hex_char
-                result += hex_char
-            r.append(int(result, 16))
-        return r
-
-    @staticmethod
-    def state_from_hex_result(hex_msg):
-        assert len(hex_msg) == 40
-        return [int(hex_msg[i:i+8], 16) for i in xrange(0, 40, 8)]
-
-    def __init__(self, data='', h0=0x67452301, h1=0xEFCDAB89, h2=0x98BADCFE, h3=0x10325476, h4=0xC3D2E1F0):
-        self.h = [h0, h1, h2, h3, h4]
-        self.remainder = data
-        self.count = 0
-
-    def _add_chunk(self, chunk):
-        self.count += 1
-        w = list( struct.unpack(">16I", chunk) + (None,) * (80-16) )
-        for i in xrange(16, 80):
-            n = w[i-3] ^ w[i-8] ^ w[i-14] ^ w[i-16]
-            w[i] = leftrotate(n, 1)
-        a,b,c,d,e = self.h
-        for i in xrange(80):
-            f = None
-            k = None
-            if i < 20:
-                f = (b & c) ^ (~b & d)
-                k = 0x5A827999
-            elif i < 40:
-                f = b ^ c ^ d
-                k = 0x6ED9EBA1
-            elif i < 60:
-                f = (b & c) ^ (b & d) ^ (c & d)
-                k = 0x8F1BBCDC
-            else:
-                f = b ^ c ^ d
-                k = 0xCA62C1D6
-
-            temp = (leftrotate(a,5) + f + e + k + w[i]) % 2**32
-            e = d
-            d = c
-            c = leftrotate(b, 30)
-            b = a
-            a = temp
-        self.h[0] = (self.h[0] + a) % 2**32
-        self.h[1] = (self.h[1] + b) % 2**32
-        self.h[2] = (self.h[2] + c) % 2**32
-        self.h[3] = (self.h[3] + d) % 2**32
-        self.h[4] = (self.h[4] + e) % 2**32
-
-    def add(self, data):
-        message = self.remainder + data
-        r = len(message) % 64
-        if r != 0:
-            self.remainder = message[-r:]
-        else:
-            self.remainder = ""
-        for chunk in xrange(0, len(message)-r, 64):
-            self._add_chunk( message[chunk:chunk+64] )
-        return self
-
-    def finish(self):
-        l = len(self.remainder) + 64 * self.count
-        self.add( "\x80" + "\x00" * ((55 - l) % 64) + struct.pack(">Q", l * 8) )
-        h = tuple(x for x in self.h)
-        self.__init__()
-        return struct.pack(">5I", *h)
+    def get_state_from_hex_str(result):
+        assert len(result) == 40
+        return [int(result[i:i + 8], 16) for i in xrange(0, 40, 8)]
 
 
 if __name__ == '__main__':
@@ -101,12 +99,12 @@ if __name__ == '__main__':
             text = 'aaaaaaaaaaaaaaaaa'
 
             sha1 = SHA1()
-            sha1.add(text)
-            my_msg = sha1.finish()
+            sha1.update(text)
+            my_msg = sha1.hexdigest()
 
             d = hashlib.sha1()
             d.update(text)
-            correct_msg = d.digest()
+            correct_msg = d.hexdigest()
 
             self.assertEqual(my_msg, correct_msg)
 
@@ -115,33 +113,14 @@ if __name__ == '__main__':
             text = 'aaaaaaaaaaaaaaaaa'
 
             sha1 = SHA1()
-            sha1.add(text)
-            sha1.add(text)
-            my_msg = sha1.finish()
+            sha1.update(text)
+            sha1.update(text)
+            my_msg = sha1.hexdigest()
 
             d = hashlib.sha1()
             d.update(text)
             d.update(text)
-            correct_msg = d.digest()
-
-            self.assertEqual(my_msg, correct_msg, 'second digest, {} != {}'.format(repr(my_msg), repr(correct_msg)))
-
-        def test_from_prevously_hashed_result(self):
-            import hashlib
-            text = 'aaaaaaaaaaaaaaaaa'
-
-            d = hashlib.sha1()
-            d.update(text)
-            previous_msg = d.digest()
-
-            h0, h1, h2, h3, h4 = SHA1.state_from_str_result(previous_msg)
-            sha1 = SHA1(text, h0, h1, h2, h3, h4)
-            my_msg = sha1.finish()
-
-            d = hashlib.sha1()
-            d.update(text)
-            d.update(text)
-            correct_msg = d.digest()
+            correct_msg = d.hexdigest()
 
             self.assertEqual(my_msg, correct_msg, 'second digest, {} != {}'.format(repr(my_msg), repr(correct_msg)))
 
