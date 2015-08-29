@@ -13,6 +13,7 @@ def try_signature(browser, signature):
 
 def get_correct_signature():
     signature = '0' * hashlib.sha1().block_size
+    print 'Initial signature:', signature
 
     # Create browser and configure.
     browser = mechanize.Browser()
@@ -24,7 +25,7 @@ def get_correct_signature():
     browser.addheaders = [('User-agent', 'Firefox')]
 
     # First we get the minimum processing time.
-    elapsed_time = try_signature(browser, signature[:2])
+    elapsed_time = try_signature(browser, signature[:])
     print 'minimum time:', elapsed_time
     exit()
 
