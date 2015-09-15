@@ -21,4 +21,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='Break an MD4 keyed MAC using length extension - Challenge 30 (Set 4) of Matasano Crypto Challenge.')
 
+    args = parser.parse_args()
+
     main()
