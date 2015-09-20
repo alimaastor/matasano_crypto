@@ -20,13 +20,11 @@ def main():
     server_timeout = float(os.environ['SERVER_TIMEOUT'])
     print 'comparison time for each byte is', server_timeout, 'seconds'
 
-    # Start server.
-    command = 'python {}'.format(os.path.join('lib', 'timing_leak_server.py'))
-    with open(os.devnull, 'rw') as devnull:
-        global p
-        p = subprocess.Popen(command, shell=True, stdout=devnull, stderr=devnull)
-    print 'server started'
-    atexit.register(close_server)
+    if not args.no_server:
+        # Start server.
+        command = 'python {}'.format(os.path.join('lib', 'timing_leak_server.py'))
+        p = subprocess.Popen(command, shell=True)
+        print 'server started'
 
     # Create browser and configure.
     browser = config_browser()
@@ -36,15 +34,20 @@ def main():
 
     print 'signature is', signature
 
+    # Stop server.
+    if not args.no_server:
+        p.terminate()
+
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(
-        description=('Implement and break HMAC-SHA1 with an artificial '
-                     'timing leak - Challenge 31 (Set 4) of Matasano Crypto Challenge.'))
-
+        description=('Break HMAC-SHA1 with a slightly less artificial timing leak'
+                     ' - Challenge 32 (Set 4) of Matasano Crypto Challenge.'))
+    parser.add_argument('--no-server',
+        help='Don\'t run the timing leak server.', action='store_true')
     args = parser.parse_args()
 
     try:
-        main()
+        main(args)
     except KeyboardInterrupt:
         pass
