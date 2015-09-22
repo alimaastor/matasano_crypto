@@ -2,6 +2,13 @@
 import os
 import subprocess
 import atexit
+import sys
+try:
+    import web
+except ImportError:
+    print 'You have to install wep.py in order to run this script'
+    sys.exit(1)
+
 
 import lib.utils as utils
 from lib.timing_leak_attack import find_signature, config_browser
