@@ -1,8 +1,12 @@
 
 import random
+import os
+import binascii
 from Crypto.Cipher import AES
 
 from Message import Message
+
+crypto_random = lambda n_bytes: long(binascii.hexlify(os.urandom(n_bytes)), 16)
 
 def static_var(varname, value):
     def decorate(func):
