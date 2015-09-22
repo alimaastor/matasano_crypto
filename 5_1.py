@@ -31,7 +31,7 @@ def main(args):
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(
-        description=' - Challenge 33 (Set 5) of Matasano Crypto Challenge.')
+        description='Implement Diffie-Hellman - Challenge 33 (Set 5) of Matasano Crypto Challenge.')
     args = parser.parse_args()
 
     main(args)
