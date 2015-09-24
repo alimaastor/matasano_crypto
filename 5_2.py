@@ -73,7 +73,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description=(
             'Implement a MITM key-fixing attack on Diffie-Hellman with parameter injection'
-            ' - Challenge 33 (Set 5) of Matasano Crypto Challenge.'))
+            ' - Challenge 34 (Set 5) of Matasano Crypto Challenge.'))
     args = parser.parse_args()
 
     main(args)
