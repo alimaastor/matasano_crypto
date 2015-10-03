@@ -5,11 +5,6 @@ from Crypto.Cipher import AES
 import lib.utils as utils
 from lib.Message import Message
 
-class NonCompilantAsciiTextException(Exception):
-    def __init__(self, text):
-        self.text = text
-
-
 def get_cypher():
  AES.new(get_passwd(), AES.MODE_CBC, IV=get_passwd())
 
