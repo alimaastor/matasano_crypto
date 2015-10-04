@@ -10,11 +10,20 @@ from socket_wrapper import socket_send, socket_receive, get_server_socket
 
 def check_credentials(sock):
     # C & S: Agree on N=[NIST Prime], g=2, k=3, I (email), P (password)
-    N = 0x009f4f57c0d386b90c5cf147d96466c5c7b2d154e7d32a58695191847f58f5e2ca9c28b497ae1b31d1c2507b1c489662a9d39c5b5100503888cfd7c762a7c1310d26b8ae38ad8de4ba3ff800022221c73be2da3113b4a7ba404a32a446adb9dedb2958bab3b26f2984396e1af1fc28594182b2a72de7fed99ea03e34c0d69e02db
-    g = 2
-    k = 3
     I = 'example@mail.com'
     P = 'somepassword1234'
+
+    print "Waiting for client to send us N, g & k. I (email) & P (password) are already known."
+    values = socket_receive(sock)
+    for key, value in values.iteritems():
+        globals()[key] = value
+    assert N
+    assert g
+    assert k
+    print "N:", N
+    print 'g:', g
+    print "k:", k
+    print ""
 
     #   Generate salt as random integer
     salt = crypto_random(32)
