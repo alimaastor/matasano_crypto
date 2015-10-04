@@ -17,9 +17,9 @@ def check_credentials(sock):
     values = socket_receive(sock)
     for key, value in values.iteritems():
         globals()[key] = value
-    assert N
-    assert g
-    assert k
+    assert N != None
+    assert g != None
+    assert k != None
     print "N:", N
     print 'g:', g
     print "k:", k
@@ -49,8 +49,8 @@ def check_credentials(sock):
     values = socket_receive(sock)
     for key, value in values.iteritems():
         globals()[key] = value
-    assert I
-    assert A
+    assert I != None
+    assert A != None
     print 'Received variables I and A'
     print "I:", I
     print "A:", A
@@ -88,7 +88,7 @@ def check_credentials(sock):
     values = socket_receive(sock)
     for key, value in values.iteritems():
         globals()[key] = value
-    assert signature
+    assert signature != None
 
     signature_s = hmac.HMAC(Message().set_int(K).to_str(), salt_str, hashlib.sha256).hexdigest()
     print "S->C: Send \"OK\" if HMAC-SHA256(K, salt) validates"
@@ -110,6 +110,7 @@ def main(args):
     try:
         check_credentials(sock)
     finally:
+        print "Shutting down socket"
         sock.shutdown(socket.SHUT_RDWR)
 
 if __name__ == '__main__':
