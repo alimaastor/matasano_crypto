@@ -116,8 +116,7 @@ def main(args):
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(
-        description="This is the server side of: "
-        "Break SRP with a zero key - Challenge 35 (Set 5) of Matasano Crypto Challenge."
+        description="This is a SRP server - Set 5 of Matasano Crypto Challenge."
     )
     parser.add_argument('port_number',
         help='Port number to connect to', type=int)
