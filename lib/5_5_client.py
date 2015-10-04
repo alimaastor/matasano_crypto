@@ -16,6 +16,11 @@ def log_in(sock):
     I = 'example@mail.com'
     P = 'somepassword1234'
 
+    print "Sending N, g & k to the server."
+    data = json.dumps({'N': N, 'g': g, 'k': k})
+    socket_send(sock, data)
+    print ""
+
     # C->S: Send I, A=g**a % N (a la Diffie Hellman)
     print "C->S: Send I, A=g**a % N (a la Diffie Hellman)"
     a = crypto_random(32)

@@ -36,6 +36,7 @@ def socket_receive(socket):
 
 def get_server_socket(hostname, port):
     serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    serversocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     serversocket.bind((hostname, port))
     serversocket.listen(1)
     (clientsocket, address) = serversocket.accept()
